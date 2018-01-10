@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html>
+<head>
+      <meta charset="UTF-8">
+<title>ShipMsg</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet'>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <style>
+        .header {
+            width: 100%;
+            height: 85px;
+            background-color: #DCDCDC;
+        }
+        .profile-img {
+        	padding: 10px;
+            margin: 20px;
+            width: 340px;
+            height: 200px;
+		    -webkit-box-shadow: rgba(0,0,0,.3) 0 1px 3px;
+		    -moz-box-shadow: rgba(0,0,0,.3) 0 1px 3px;
+		    background: #fff;
+            border-radius: 5px;
+        }
+        .profile-text {
+            font-color: #35434C;
+            font-size: 14pt;
+            font-weight: 300;
+            line-height: 2;
+            letter-spacing: 0.2em;
+          }
+          .date-text {
+            font-color: #35434C;
+            font-size: 10pt;
+            font-weight: 300;
+            line-height: 2;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding-left: 20px;
+          }
+          .message-text {
+            font-color: #35434C;
+            font-size: 10pt;
+            line-height: 2;
+            letter-spacing: 0.2em;
+          }
+        .img-border {
+            width: 62px;
+            height: 62px;
+            border-color: #dddddd;
+		    border-style: solid;
+		    border-width: 1px;
+            border-radius: 100%;
+        }
+        .img {
+        	padding: 5px;
+            width: 60px;
+            height: 60px;
+        }
+        .box {
+            margin: 10px;
+            width: 310px;
+            border-radius: 5px;
+            height: 310px;
+		    -webkit-box-shadow: rgba(0,0,0,.3) 0 1px 3px;
+		    -moz-box-shadow: rgba(0,0,0,.3) 0 1px 3px;
+		    background: #fff;
+        }
+        .user-box {
+            margin: 10px;
+            width: 310px;
+            border-radius: 5px;
+            height: 125px;
+		    -webkit-box-shadow: rgba(0,0,0,.3) 0 1px 3px;
+		    -moz-box-shadow: rgba(0,0,0,.3) 0 1px 3px;
+		    background: #fff;
+        }
+        @media only screen and (min-width: 1260px) {
+            .box {
+                width: 400px;
+                height: 400px;
+                margin: 10px;
+            }
+        }
+        @media screen and (max-width: 992px) {
+            .box {
+                width: 400px;
+                height: 400px;
+                margin: 10px;
+            }
+        }
+        .spotlight {
+            display: block;
+            height: 60px;
+            width: 60px;
+            font-size: 12px;
+            border-radius: 50%;
+            border: 1px solid #e6e6e6;
+            color: #929292;
+            cursor: pointer;
+        }
+        .spotlight:hover {
+            background-color: #1d9981;
+            color: white;
+        }
+        .spotlight .image {
+            border-radius: 50%;
+            margin: 0 3em 0 0;
+            display: block;
+        }
+        .spotlight-mini {
+            height: 50px;
+            width: 50px;
+            padding: 37.5px;
+        }
+        .image {
+            box-shadow: 0 0 0 4px #ffffff, 0 0 0 5px #e6e6e6;
+        }
+        .button-txt {
+            height: 90%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .button-txt-selected {
+            background-color: #16A085;
+            color: white;
+        }
+        .row {
+            margin-right: 0px;
+            margin-left: 0px;
+        }
+        
+        body {
+		    background-color: #F7F8F9;
+		}
+		.message-window {
+			padding: 30px;
+			width: 100%;
+			height: 300px;
+  			text-align: center;
+		}
+		.message-span {
+			width: 100%;
+		  font-size: 20px;
+		}
+		.message-time {
+	    	text-align: left;
+	    }
+	    .send-message-box {
+			height: 125px;
+	    }
+	    .name-box {
+	    	padding: 10px;
+	    }
+	    .user-name-box {
+	    	padding: 10px;
+	    }
+	    @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+	    	.profile-img {
+	    		width: 80%;
+	    	}
+		}
+	    
+        </style>
+        <script>
+
+        $(document).ready(function(){
+        	  $.ajaxSetup({ cache: true });
+        	  $.getScript('//connect.facebook.net/en_US/sdk.js', function(){
+        	    FB.init({
+        	      appId: '755582744629676',
+        	      version: 'v2.7'
+        	    });
+        	    checkLoginState(loadLoggedInData);
+        	  });
+              
+        	$('#logoutBtn').on('click', function (e) {
+        		FB.logout(function(response) {
+        			console.log('logoutBtn');
+        			console.log(response);
+        	       	var jsonData = {api : "logoutfb"};
+        	     	$.ajax({
+             		  type: "POST",
+             		  url: "api.jsp",
+             		  data: jsonData,
+             		  success: function(data) {
+              			checkLoginState(function() {
+              				
+              			});
+             		  }
+             		});
+        		});
+        		/*
+        		var userjsonData = {api : "logout"};
+        		$.ajax({
+      	 		  type: "POST",
+      	 		  url: "api.jsp",
+      	 		  data: userjsonData,
+      	 		  success: function(data) {
+      	 			  if(data.status) {
+ 	     				 //window.location.href = "index.html";
+      	 			  }
+      	 		  }
+      	 		});
+        		*/
+        	});
+        	
+
+        	$('#sendmessagebtn').on('click', function (e) {
+     			//messageToSend
+     			//send-to
+        	    var messageToSend = $('#messageToSend').val();
+        	    var sendTo = $('#send-to').html();
+        		var userjsonData = {api : "send", sendTo:sendTo, messageToSend:messageToSend};
+        		$.ajax({
+        	 		  type: "POST",
+        	 		  url: "api.jsp",
+        	 		  data: userjsonData,
+        	 		  success: function(data) {
+        	 			  if(data.status) {
+          	     			$('#myModal').modal('hide');
+        	 			  }
+        	 		  }
+        	 		});
+        	});
+        	$('#sendbtn').on('click', function (e) {
+        		refreshPage("send");
+        	});
+        	$('#sentbtn').on('click', function (e) {
+        		refreshPage("sent");
+        	});
+        	$('#receivedbtn').on('click', function (e) {
+        		refreshPage("received");
+        	});
+        	$('#favoritesbtn').on('click', function (e) {
+        		refreshPage("favorites");
+        	});
+        	$('#refreshbtn').on('click', function (e) {
+        		refreshCurrentPage();
+        	});
+        	
+        	$("#messageToSend").on('change keyup paste', function() {
+        	    var messageToSend = $('#messageToSend').val();
+        	    if(messageToSend.length > 500) {
+        	    	messageToSend = messageToSend.substring(0, 500);
+        	    	$('#messageToSend').val(messageToSend);
+        	    }
+        	    var numberOfCharactersLeft = 500 - messageToSend.length;
+        	    $("#numberOfCharactersInMessage").html(numberOfCharactersLeft + " characters remaining.");
+        	});
+        });
+        </script>
+</head>
+<body>
+   <script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	
+	  ga('create', 'UA-105614215-1', 'auto');
+	  ga('send', 'pageview');
+	
+	</script>
+<script>
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+var recipient = getParameterByName('message');
+var currentTab = "send";
+
+
+	function refreshCurrentPage() {
+		refreshPage(currentTab);
+	}
+	function refreshPage(currentTabLcl) {
+		currentTab = currentTabLcl;
+		resetButtons();
+		if(currentTab === "sent") {
+			refreshSentTab();
+		} else if(currentTab === "received") {
+			refreshReceivedTab();
+		} else if(currentTab === "favorites") {
+			refreshFavoritesTab();
+		} else if(currentTab === "send") {
+			refreshSendTab();
+		}
+	}
+	function refreshSentTab() {
+		setButton('#sentbtn');
+  	var jsonData = {api:"messages",msgType:"sent"};
+  	$.ajax({
+   		  type: "POST",
+   		  url: "api.jsp",
+   		  data: jsonData,
+   		  success: function(responsedata) {
+   			  var col = 0;
+   			  var rowHTML = "";
+   			  
+   			 $("#message-rows").html("");
+   			 
+   			 $.each(responsedata.data, function( index, value ) { 
+   				 if(col == 3) {
+   					 col = 0;
+   					 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+   					rowHTML = "";
+   				 }
+   				 var approvalButton = undefined;
+   				 if ((value.isRequested) && (!value.isRequestAccepted)) {
+   					approvalButton = "<button type=\"button\" class=\"btn btn-primary\" onclick=\"approveMessageIdentity('"+value.messageId+"')\" style='margin:10px;' > Approve Identity Reveal</button>";
+   				 } else if ((value.isRequested) && (value.isRequestAccepted)) {
+   					approvalButton = "<button type=\"button\" class=\"btn btn-success\" style='margin:10px;' >Approved Identity Reveal</button>";
+   				 } else {
+    					approvalButton = "<button type=\"button\" class=\"btn btn-secondary\" style='margin:10px;' >No Request</button>";
+   				 }
+   				rowHTML += "<div class='col-xs-12 col-xs-12 col-md-4' align='center'>";
+   				rowHTML += "<div class='box'>";
+   				rowHTML += "<div class='message-window'>";
+   				rowHTML += "<div class='message-span message-text'>";
+   				rowHTML += value.receiverName;
+   				rowHTML += "</div>";
+   				if(approvalButton) {
+       				rowHTML += "<div>";
+       				rowHTML += approvalButton;
+       				rowHTML += "</div>";
+   				}
+   				rowHTML += "<div>";
+   				rowHTML += value.message;
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				rowHTML += "<div class='message-time date-text'>@";
+   				rowHTML += value.messageTS;
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				 
+   				 col++;
+   			  console.log(value);
+   		  	});
+				 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+   		}
+  	});
+	}
+	function refreshReceivedTab() {
+		setButton('#receivedbtn');
+  	var jsonData = {api:"messages",msgType:"received"};
+  	$.ajax({
+   		  type: "POST",
+   		  url: "api.jsp",
+   		  data: jsonData,
+   		  success: function(responsedata) {
+   			  var col = 0;
+   			  var rowHTML = "";
+   			  
+   			 $("#message-rows").html("");
+   			 
+   			 $.each(responsedata.data, function( index, value ) { 
+   				 if(col == 3) {
+   					 col = 0;
+   					 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+   					rowHTML = "";
+   				 }
+   				 var senderName = "";
+   				 if (value.senderName) {
+   					senderName = value.senderName;
+   				 } else if(value.isRequested) {
+    					senderName = "<button type=\"button\" class=\"btn btn-secondary\" style='margin:10px;' > Requested Sender To Reveal</button>";
+   				 } else {
+   					senderName = "<button type=\"button\" class=\"btn btn-primary\" onclick=\"requestMessageIdentity('"+value.messageId+"')\" style='margin:10px;' > Request Sender To Reveal</button>";
+   				 }
+   				rowHTML += "<div class='col-xs-12 col-xs-12 col-md-4' align='center'>";
+   				rowHTML += "<div class='box'>";
+   				rowHTML += "<div class='message-window'>";
+   				rowHTML += "<div class='message-span message-text'>";
+   				rowHTML += senderName;
+   				rowHTML += "</div>";
+   				rowHTML += "<div>";
+   				rowHTML += value.message;
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				rowHTML += "<div class='message-time date-text'>@";
+   				rowHTML += value.messageTS;
+   				rowHTML += "</div>";
+ 				rowHTML += "<div>";
+ 				rowHTML += "<button type='button' class='btn btn-default' aria-label='Favorites' onclick=\"markFavorites('"+value.messageId+"',"+value.isFavorite+")\" style='color:#FF0000;' >";
+ 				rowHTML += "<span class='glyphicon glyphicon-heart' aria-hidden='true'></span>";
+ 				rowHTML += "</button>";
+ 				rowHTML += "<button type='button' class='btn btn-default' aria-label='Delete' onclick=\"deleteMessage('"+value.messageId+"')\" style='margin:10px;' >";
+ 				rowHTML += "<span class='glyphicon glyphicon-trash' aria-hidden='true'></span>";
+ 				rowHTML += "</button>";
+ 				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				 
+   				 col++;
+   			  console.log(value);
+   		  	});
+				 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+   		}
+  	});
+	}
+	function refreshFavoritesTab() {
+		setButton('#favoritesbtn');
+  	var jsonData = {api:"messages",msgType:"favorites"};
+  	$.ajax({
+   		  type: "POST",
+   		  url: "api.jsp",
+   		  data: jsonData,
+   		  success: function(responsedata) {
+   			  var col = 0;
+   			  var rowHTML = "";
+   			  
+   			 $("#message-rows").html("");
+   			 
+   			 $.each(responsedata.data, function( index, value ) { 
+   				 if(col == 3) {
+   					 col = 0;
+   					 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+   					rowHTML = "";
+   				 }
+   				 var senderName = "";
+   				 if (value.senderName) {
+   					senderName = value.senderName;
+   				 } else if(value.isRequested) {
+    					senderName = "<button type=\"button\" class=\"btn btn-secondary\" style='margin:10px;' > Requested Sender To Reveal</button>";
+   				 } else {
+   					senderName = "<button type=\"button\" class=\"btn btn-primary\" onclick=\"requestMessageIdentity('"+value.messageId+"')\" style='margin:10px;' > Request Sender To Reveal</button>";
+   				 }
+   				rowHTML += "<div class='col-xs-12 col-xs-12 col-md-4' align='center'>";
+   				rowHTML += "<div class='box'>";
+   				rowHTML += "<div class='message-window'>";
+   				rowHTML += "<div class='message-span message-text'>";
+   				rowHTML += senderName;
+   				rowHTML += "</div>";
+   				rowHTML += "<div>";
+   				rowHTML += value.message;
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				rowHTML += "<div class='message-time date-text'>@";
+   				rowHTML += value.messageTS;
+   				rowHTML += "</div>";
+ 				rowHTML += "<div>";
+ 				rowHTML += "<button type='button' class='btn btn-default' aria-label='Favorites' onclick=\"markFavorites('"+value.messageId+"',"+value.isFavorite+")\" style='color:#FF0000;margin:10px;' >";
+ 				rowHTML += "<span class='glyphicon glyphicon-heart' aria-hidden='true'></span>";
+ 				rowHTML += "</button>";
+ 				rowHTML += "<button type='button' class='btn btn-default' aria-label='Delete' onclick=\"deleteMessage('"+value.messageId+"')\" style='margin:10px;' >";
+ 				rowHTML += "<span class='glyphicon glyphicon-trash' aria-hidden='true'></span>";
+ 				rowHTML += "</button>";
+ 				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				 
+   				 col++;
+   		  	});
+				 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+   		}
+  	});
+	}
+	function refreshSendTab() {
+		setButton('#sendbtn');
+		loadUserList();
+	}
+	
+  function checkLoginState(connectedcallback) {
+   	    FB.getLoginStatus(function(response) {
+   	    	facebookLoginStatus(connectedcallback, response);
+   	    });
+  }
+  
+   function facebookLoginStatus(connectedcallback, response) {
+   	if(response.status == "connected") {
+   	     FB.api('/me', function(meresponse) {
+   	       $("#profile-name").html( meresponse.name);
+   	       FB.api("/me/picture",function (picresponse) {
+   		    	$("#profile-picture").attr("src",picresponse.data.url);
+   	    	});
+   	       FB.api("/me/friendlists", function (friendsresponse) {
+   	    	});
+   	      connectedcallback(response.authResponse.accessToken);
+   	     });
+   	} else {
+   		if (recipient){
+     			window.location.href = "index.html?message="+recipient;
+   		}else {
+     			window.location.href = "index.html";
+   		}
+      }
+   }
+  function statusChangeCallback(response) {
+  }
+  function sendMessage(receiver) {
+		$('#friendsListModal').modal('hide');
+		if (receiver){
+			recipient = receiver;
+			$("#send-to").html(recipient);
+			$('#myModal').modal('show');
+		}
+  }
+	function resetButtons() {
+		$('#sendbtn').removeClass('button-txt-selected');
+		$('#sentbtn').removeClass('button-txt-selected');
+		$('#receivedbtn').removeClass('button-txt-selected');
+		$('#favoritesbtn').removeClass('button-txt-selected');
+
+	  	var jsonData = {api:"count"};
+	  	$.ajax({
+	   		  type: "POST",
+	   		  url: "api.jsp",
+	   		  data: jsonData,
+	   		  success: function(countdata) {
+	   			$('#sendbtn').html("<br>Friends <br>"+countdata.friendsCount);
+	   			$('#sentbtn').html("<br>Sent <br>"+countdata.sentCount);
+	   			$('#receivedbtn').html("<br>Received <br>"+countdata.receivedCount);
+	   			$('#favoritesbtn').html("<br>Favorites <br>"+countdata.favCount);
+	   		  }
+	  	});
+		
+	}
+	function setButton(btn) {
+		$(btn).addClass('button-txt-selected');
+		
+	}
+	function loadMessages(msgType) {
+  	var jsonData = {api:"messages",msgType:msgType};
+  	$.ajax({
+   		  type: "POST",
+   		  url: "api.jsp",
+   		  data: jsonData,
+   		  success: function(responsedata) {
+   			  var col = 0;
+   			  var rowHTML = "";
+   			  
+   			 $("#message-rows").html("");
+   			 
+   			 $.each(responsedata.data, function( index, value ) { 
+   				 if(col == 3) {
+   					 col = 0;
+   					 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+   					rowHTML = "";
+   				 }
+   				rowHTML += "<div class='col-xs-12 col-xs-12 col-md-4' align='center'>";
+   				rowHTML += "<div class='box'>";
+   				rowHTML += "<div class='message-window'>";
+   				rowHTML += "<div class='message-span message-text'>";
+   				rowHTML += value.msg;
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				rowHTML += "<div class='message-time date-text'>@";
+   				rowHTML += value.date;
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				rowHTML += "</div>";
+   				 col++;
+   		  	});
+				 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+   		}
+  	});
+	}
+  function loadLoggedInData(accessToken) {
+  	//loadUserData(accessToken);
+		resetButtons();
+		setButton('#sendbtn');
+		loadUserList();
+		if (recipient){
+			$("#send-to").html(recipient);
+			$('#myModal').modal('show');
+		}
+  }
+  
+  function markFavorites(messageId, isFavorite) {
+		var userjsonData = {api : "markFavorites", messageId:messageId};
+		$.ajax({
+	 		  type: "POST",
+	 		  url: "api.jsp",
+	 		  data: userjsonData,
+	 		  success: function(data) {
+	 			  refreshCurrentPage();
+	 		  }
+	 		});
+}
+  function deleteMessage(messageId) {
+		var userjsonData = {api : "deleteMessage", messageId:messageId};
+		$.ajax({
+	 		  type: "POST",
+	 		  url: "api.jsp",
+	 		  data: userjsonData,
+	 		  success: function(data) {
+	 			  refreshCurrentPage();
+	 		  }
+	 		});
+}
+  
+  function approveMessageIdentity(messageId) {
+		var userjsonData = {api : "approveidentity", messageId:messageId};
+		$.ajax({
+	 		  type: "POST",
+	 		  url: "api.jsp",
+	 		  data: userjsonData,
+	 		  success: function(data) {
+	 			  refreshCurrentPage();
+	 		  }
+	 		});
+  }
+  function requestMessageIdentity(messageId) {
+		var userjsonData = {api : "requestidentity", messageId:messageId};
+		$.ajax({
+	 		  type: "POST",
+	 		  url: "api.jsp",
+	 		  data: userjsonData,
+	 		  success: function(data) {
+	 			  refreshCurrentPage();
+	 		  }
+	 		});
+  }
+  
+  function loadUserList() {
+		var userjsonData = {api : "friends"};
+		$.ajax({
+	 		  type: "POST",
+	 		  url: "api.jsp",
+	 		  data: userjsonData,
+	 		  success: function(data) {
+	 			  if(data.status) {
+       			  var col = 0;
+       			  var rowHTML = "";
+	         		 $("#message-rows").html("");
+	 				 $(data.friends).each(function(index, value) {
+       				 if(col == 3) {
+       					 col = 0;
+       					 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+       					rowHTML = "";
+       				 }
+       				rowHTML += "<div class='col-xs-12 col-xs-12 col-md-4' align='center'>";
+       				rowHTML += "<div class='user-box'>";
+       				rowHTML += "<div class='name-box'>";
+       				rowHTML += value.name;
+       				rowHTML += "</div>";
+       				rowHTML += "<div class='user-name-box'>";
+       				rowHTML += "<button type=\"button\" class=\"btn btn-primary\" onclick=\"sendMessage('"+value.userName+"')\" > Message "+value.userName+" </button>";
+       				rowHTML += "</div>";
+       				rowHTML += "</div>";
+       				rowHTML += "</div>";
+       				 
+       				 col++;
+       			  console.log(value);
+       		  	});
+					 $("#message-rows").append("<div class='row'>" + rowHTML+"</div>");
+	 			  } else {
+	 				  if((data.request) && (data.request==="reauth")) {
+	 					 FB.login(function(response) {
+	 						 if(response.status==="connected") {
+    	 			         	var jsonData = {api : "reregister", accessToken: response.authResponse.accessToken};
+    	 			         	$.ajax({
+    	 			             		  type: "POST",
+    	 			             		  url: "api.jsp",
+    	 			             		  data: jsonData,
+    	 			             		  success: function(data) {
+    	 			             			  console.log(data.msg);
+    	 			             			  $("#alertDiv").text(data.msg);
+    	 			             			 	deleteData();
+    	 			             		  }
+    	 			             		});
+	 						 }
+	 					});
+	 				  }
+	 			  }
+	 		  }
+	 		});
+  }
+  
+</script>
+    <div class='row'>
+        <div class='col-xs-8 col-xs-8 col-md-8'>
+               <span class='title-header' style='font-family:Pacifico;text-align:center;font-size:46px;color:00D4AA;'>ShipMsg</span>
+        </div> 
+        <div class='col-xs-4 col-xs-4 col-md-4' align="right">
+            <button type="button" class="btn btn-link" id="logoutBtn">Logout</button>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='hidden-xs hidden-xs col-md-4'></div>
+        <div class='col-xs-12 col-xs-12 col-md-12 col-centered' align="center">
+            <div class='profile-img'>
+            	<div class="img-border">
+                	<img class='img-circle img' src= "empty-picture.png" id="profile-picture">
+            	</div>
+                <div class='profile-text' id="screen-name" style="font-weight: 400;font-size:16pt;text-transform: uppercase;"></div>
+                <div class='profile-text' id="profile-name" style="font-weight: 400;font-size:14pt;text-transform: uppercase;"></div>
+                <div class='profile-text' id="email-id" style="font-weight: 200;font-size:12pt;"></div>
+            </div>
+        </div>
+        <div class='hidden-xs hidden-xs col-md-4'></div>
+    </div>
+    <div align='center'>
+    <div class="btn-group message-type" role="group" aria-label="Basic example">
+    <div class='row'>
+        <div class='col-xs-1 col-xs-2 col-md-1'>
+        </div>
+        <div class='col-xs-2 col-xs-2 col-md-2'>
+		    <section class="spotlight" id="sendbtn">
+		    	<div class="button-txt">
+					Friends
+				</div>
+			</section>
+        </div>
+        <div class='col-xs-2 col-xs-2 col-md-2'>
+		    <section class="spotlight" id="receivedbtn">
+		    	<div class="button-txt">
+					Received
+				</div>
+			</section>
+        </div>
+        <div class='col-xs-2 col-xs-2 col-md-2'>
+		    <section class="spotlight" id="favoritesbtn">
+		    	<div class="button-txt">
+					Favorites
+				</div>
+			</section>
+        </div>
+        <div class='col-xs-2 col-xs-2 col-md-2'>
+		    <section class="spotlight" id="sentbtn">
+		    	<div class="button-txt">
+					Sent
+				</div>
+			</section>
+        </div>
+        <div class='col-xs-2 col-xs-2 col-md-2'>
+		    <section class="spotlight" id="refreshbtn">
+		    	<div class="button-txt">
+					Refresh
+				</div>
+			</section>
+        </div>
+        <div class='col-xs-1 col-xs-1 col-md-1'>
+        </div>
+    </div>
+    </div>
+    </div>
+    <br>
+    <div class='message-rows' id="message-rows">
+    </div>
+    
+    
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+    		<div class='row'>
+        		<div class='col-xs-2 col-xs-2 col-md-2'>
+					<div class='profile-text' style="font-weight: 400;font-size:14pt;">Send: </div>
+        		</div>
+        		<div class='col-xs-10 col-xs-10 col-md-10'>
+					<div class='profile-text' id="send-to" style="font-weight: 400;font-size:14pt;"></div>
+        		</div>
+        	</div>
+    		<div class='row send-message-box'>
+        		<div class='col-xs-8 col-xs-8 col-md-8'>
+					  <textarea class="form-control" rows="5" id="messageToSend" style="resize: none;"></textarea>
+        		</div>
+        		<div class='col-xs-4 col-xs-4 col-md-4'>
+				    <section class="spotlight spotlight-mini" id="sendmessagebtn">
+				    	<div class="button-txt">
+							Send
+						</div>
+					</section>
+        		</div>
+        	</div>
+    		<div class='row'>
+        		<div class='col-xs-12 col-xs-12 col-md-12'>
+        			<div id="numberOfCharactersInMessage">500 characters remaining.</div>
+        		</div>
+        	</div>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+  <div class="modal fade" id="friendsListModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+        	<div style="padding:10px;">Friends</div>
+        	<div style="padding:10px;" id="friendList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+</body>
+</html>
